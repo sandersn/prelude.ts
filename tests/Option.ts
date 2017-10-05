@@ -60,7 +60,7 @@ describe("option transformation", () => {
 describe("Option helpers", () => {
     it("should do sequence when all are some", () =>
        assert.ok(
-           Option.of(<Seq<number>>Vector.of(1,2,3)).equals(
+           Option.of(Vector.of(1,2,3)).equals(
                Option.sequence(Vector.of(Option.of(1), Option.of(2), Option.of(3))))));
     it("should fail sequence when some are none", () =>
        assert.ok(

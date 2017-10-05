@@ -13,7 +13,7 @@ const hamt: any = require("hamt_plus");
  * O(1) access, append, prepend.
  * @type T the item type
  */
-export class Vector<T> implements Seq<T>, Iterable<T> {
+export class Vector<T> {
     
     /**
      * @hidden
@@ -600,7 +600,7 @@ export class Vector<T> implements Seq<T>, Iterable<T> {
      * also see [[Vector.groupBy]]
      */
     arrangeBy<K>(getKey: (v:T)=>K&WithEquality): Option<IMap<K,T>> {
-        return SeqHelpers.arrangeBy<T,K>(this, getKey);
+        return locarrangeBy<T,K>(this, getKey);
     }
 
     /**
@@ -823,4 +823,10 @@ export class Vector<T> implements Seq<T>, Iterable<T> {
     inspect(): string {
         return this.toString();
     }
+}
+
+function locarrangeBy<T,K>(seq: Vector<T>, getKey: (v:T)=>K&WithEquality): Option<IMap<K,T>> {
+    return Option.of(seq.groupBy(getKey).mapValues(v => v.single()))
+        .filter(map => !map.anyMatch((k,v) => v.isNone()))
+        .map(map => map.mapValuesStruct(v => v.getOrThrow()));
 }

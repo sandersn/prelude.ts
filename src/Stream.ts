@@ -15,7 +15,7 @@ import * as SeqHelpers from "./SeqHelpers";
  *
  * Use take() for instance to reduce an infinite stream to a finite one.
  */
-export abstract class Stream<T> implements Iterable<T>, Seq<T> {
+export abstract class Stream<T> implements Iterable<T> {
 
     /**
      * The empty stream
@@ -372,7 +372,7 @@ export abstract class Stream<T> implements Iterable<T>, Seq<T> {
      * also see [[Stream.groupBy]]
      */
     arrangeBy<K>(getKey: (v:T)=>K&WithEquality): Option<IMap<K,T>> {
-        return SeqHelpers.arrangeBy<T,K>(this, getKey);
+        return locarrangeBy<T,K>(this, getKey);
     }
 
     /**
@@ -1186,3 +1186,9 @@ class ConsStream<T> extends Stream<T> implements Iterable<T> {
 }
 
 const emptyStream = new EmptyStream();
+
+function locarrangeBy<T,K>(seq: Stream<T>, getKey: (v:T)=>K&WithEquality): Option<IMap<K,T>> {
+    return Option.of(seq.groupBy(getKey).mapValues(v => v.single()))
+        .filter(map => !map.anyMatch((k,v) => v.isNone()))
+        .map(map => map.mapValuesStruct(v => v.getOrThrow()));
+}
